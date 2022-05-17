@@ -12,8 +12,8 @@ function App() {
 
   const getMyMap = async () => {
     let container;
-    // console.log("hello -> " + window.location.hash.toString());
-    if (window.location.hash.toString() === undefined) {
+    // console.log("hello -> " + typeof(window.location.hash));
+    if (window.location.hash.toString() === "") {
       ({ container } = await client.createContainer(containerSchema));
       const map = container.initialObjects.myMap as ISharedMap;
       map.set(timeKey, Date.now().toString());
@@ -49,8 +49,8 @@ function App() {
 
   const setTime = () => {
     // const map = fluidMap as ISharedMap;
-    fluidMap?.set(timeKey, Date.now().toString())
-    // console.log(Date?.now());
+    fluidMap?.set(timeKey, Date?.now().toString())
+    console.log(Date?.now());
   };
 
   return (
