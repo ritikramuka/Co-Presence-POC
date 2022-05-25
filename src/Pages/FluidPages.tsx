@@ -4,12 +4,17 @@ import { PATH } from '../config';
 import { getFluidContainer } from '../Utils/ContainerUtils';
 import { ISharedMap } from "fluid-framework";
 
+interface IViewData {
+  [key: string]: string;
+}
+
 const FluidPages = () => {
   let { id } = useParams<{ id: string }>();
   const [fluidMap, setFluidMap] = React.useState<ISharedMap>();
   const [myName, setMyName] = React.useState<string>("Ritik");
   const [path, setPath] = React.useState<string>("/");
-  const [viewData, setViewData] = React.useState<any>([{ "DummyName": "/" }]);
+  const [viewData, setViewData] = React.useState<IViewData>({ "input": "Enter Something here!" });
+  const [inputValue, setInputValue] = React.useState<string>("Enter Something here.....");
   const timeKey = "time-key";
 
   React.useEffect(() => {
@@ -47,16 +52,32 @@ const FluidPages = () => {
     fluidMap?.set(timeKey, Date?.now().toString());
   };
 
+  function handleChangeEvent(e: any) {
+    console.log(e.target.value);
+    if (e.target.value !== "") {
+      fluidMap?.set("input", e.target.value);
+      setInputValue(e.target.value);
+    }
+  }
+
   React.useEffect(() => {
     if (fluidMap !== undefined) {
       const syncView = () => {
-        var map = new Map();
+        // var map = new Map();
+        // fluidMap.forEach((value: string, key: string) => {
+        //   map.set(key, value);
+        // })
+        // console.log(fluidMap.keys());
+        // // console.log(fluidMap);
+        // // console.log(map)
+        // setViewData(map);
+        console.log("hello.... update my viewData");
+        const _viewData: IViewData = { ...viewData };
         fluidMap.forEach((value: string, key: string) => {
-          map.set(key, value);
-        })
-        // console.log(fluidMap);
-        // console.log(map)
-        setViewData(map);
+          _viewData[key] = value;
+        });
+        setViewData(_viewData);
+        console.log(viewData);
       };
       syncView();
       fluidMap.on("valueChanged", syncView);
@@ -103,12 +124,36 @@ const FluidPages = () => {
           <Route exact path={`/${PATH}/${id}/page1`}>
             <h1>
               Hello from page 1
-              <button onClick={setTime} style={{ background: "orange" }}> click </button>
               {`${myName}, ${path}`}
               {fluidMap?.forEach((value: any, key: string) => {
                 console.log("key ->", key, " value ->", value, typeof (value));
               })}
               {console.log("------------------------------")}
+              <button onClick={setTime} style={{ background: "orange" }}> click </button>
+              <form>
+                <input type="text" value={viewData['input']} onChange={handleChangeEvent} />
+              </form>
+              {
+                Object.keys(viewData).map((key: string) => {
+                  if (key === timeKey) {
+                    return (
+                      <div key={key}>
+                        <div>time-set: {viewData[key]}</div>
+                      </div>
+                    )
+                  }
+                  else if(key !== "input"){
+                    return (
+                      <div key={key}>
+                        <div>User: {key}</div>
+                        <div>Path: {viewData[key]}</div>
+                      </div>
+                    )
+                  }
+                })
+              }
+              {/* {console.log("viewData -----> ", viewData)}
+              {console.log("input ----------> ", viewData["input"])} */}
             </h1>
           </Route>
           <Route exact path={`/${PATH}/${id}/page2`}>
